@@ -32,13 +32,8 @@ if [ "$ACTION" = "destroy" ]; then
             ;;
     esac
     
-    # Stop port-forward if running
     pkill -f "kubectl port-forward.*argocd-server" || true
-    
-    # Remove ArgoCD applications
     KUBECONFIG=$KUBECONFIG kubectl delete applications --all -n argocd --ignore-not-found=true
-    
-    # Remove ArgoCD namespace (removes everything)
     KUBECONFIG=$KUBECONFIG kubectl delete namespace argocd --ignore-not-found=true
     
     echo "GitOps Platform destroyed successfully on $TYPE cluster!"
