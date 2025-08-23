@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 if [ $# -ne 2 ]; then
     echo "Usage: $0 <deploy|destroy> <multipass|aks>"
     exit 1
