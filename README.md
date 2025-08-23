@@ -19,7 +19,8 @@ The GitOps Platform Factory is a **plug-and-play solution** that automatically d
 ## Quick Summary
 
 **What it does**: Automatically deploys ArgoCD and your Helm chart applications  
-**How to use**: `./build.sh multipass` or `./build.sh aks`  
+**How to use**: `./build.sh deploy multipass` or `./build.sh deploy aks`  
+**How to destroy**: `./build.sh destroy multipass` or `./build.sh destroy aks`  
 **Time to deploy**: ~2-3 minutes for ArgoCD + application deployment  
 **What you get**: Fully configured GitOps platform with your apps running
 
@@ -108,18 +109,31 @@ Use the build script to automate the entire GitOps setup:
 
 ```bash
 # Deploy to multipass cluster
-./build.sh multipass
+./build.sh deploy multipass
 
 # Deploy to AKS cluster
-./build.sh aks
+./build.sh deploy aks
+
+# Destroy from multipass cluster
+./build.sh destroy multipass
+
+# Destroy from AKS cluster
+./build.sh destroy aks
 ```
 
 ### What the Build Script Does
 
+**Deploy Action:**
 1. **Checks kubeconfig** - Verifies cluster access (admin.conf for multipass, azure.conf for AKS)
 2. **Generates templates** - Automatically discovers all Helm charts and generates ArgoCD manifests
 3. **Deploys ArgoCD** - Installs and configures ArgoCD on your cluster
 4. **Port-forward setup** - Backgrounds port-forward and outputs UI access details
+
+**Destroy Action:**
+1. **Stops port-forward** - Kills any running port-forward processes
+2. **Removes applications** - Deletes all ArgoCD applications
+3. **Removes ArgoCD** - Completely uninstalls ArgoCD namespace
+4. **Preserves manifests** - Keeps generated YAML files for easy redeployment
 
 ### Manual Steps (if needed)
 

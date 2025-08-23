@@ -2,18 +2,64 @@
 
 set -x
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <multipass|aks>"
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <deploy|destroy> <multipass|aks>"
     exit 1
 fi
 
-TYPE=$1
+ACTION=$1
+TYPE=$2
+
+if [ "$ACTION" = "destroy" ]; then
+    case $TYPE in
+        multipass)
+            if [ ! -f ~/.kube/admin.conf ]; then
+                echo "Multipass kubeconfig not found: ~/.kube/admin.conf"
+                exit 1
+            fi
+            export KUBECONFIG=~/.kube/admin.conf
+            echo "Destroying GitOps Platform on multipass cluster..."
+            ;;
+        aks)
+            if [ ! -f ~/.kube/azure.conf ]; then
+                echo "AKS kubeconfig not found: ~/.kube/azure.conf"
+                exit 1
+            fi
+            export KUBECONFIG=~/.kube/azure.conf
+            echo "Destroying GitOps Platform on AKS cluster..."
+            ;;
+        *)
+            echo "Invalid type: $TYPE. Use multipass or aks"
+            exit 1
+            ;;
+    esac
+    
+    # Stop port-forward if running
+    pkill -f "kubectl port-forward.*argocd-server" || true
+    
+    # Remove ArgoCD applications
+    KUBECONFIG=$KUBECONFIG kubectl delete applications --all -n argocd --ignore-not-found=true
+    
+    # Remove ArgoCD namespace (removes everything)
+    KUBECONFIG=$KUBECONFIG kubectl delete namespace argocd --ignore-not-found=true
+    
+    echo "GitOps Platform destroyed successfully on $TYPE cluster!"
+    exit 0
+fi
+
+if [ "$ACTION" = "deploy" ]; then
+    check_kubeconfig
+    generate_templates
+    deploy_argocd
+    echo "GitOps Platform deployed successfully on $TYPE cluster!"
+    exit 0
+fi
 
 check_kubeconfig() {
     case $TYPE in
         multipass)
             if [ ! -f ~/.kube/admin.conf ]; then
-                echo "Kubeconfig not found: ~/.kube/admin.conf"
+                echo "Multipass kubeconfig not found: ~/.kube/admin.conf"
                 echo "Please deploy cluster first with Ephemeral-Environment-Factory"
                 exit 1
             fi
@@ -21,7 +67,7 @@ check_kubeconfig() {
             ;;
         aks)
             if [ ! -f ~/.kube/azure.conf ]; then
-                echo "Kubeconfig not found: ~/.kube/azure.conf"
+                echo "AKS kubeconfig not found: ~/.kube/azure.conf"
                 echo "Please deploy AKS cluster first with Ephemeral-Environment-Factory"
                 exit 1
             fi
@@ -75,10 +121,4 @@ deploy_argocd() {
     echo "Port-forward PID: $PORT_FORWARD_PID (use 'kill $PORT_FORWARD_PID' to stop)"
 }
 
-main() {
-    check_kubeconfig
-    generate_templates
-    deploy_argocd
-}
 
-main
