@@ -12,9 +12,16 @@ This project is currently under active development and is not yet complete. Some
 
 ## Overview
 
-The GitOps Platform Factory handles application deployment, Helm chart management, and ArgoCD configuration for Kubernetes clusters. This repository is designed to work in conjunction with the [Ephemeral-Environment-Factory](https://github.com/vladcalo/Ephemeral-Environment-Factory) which provides the underlying infrastructure.
+The GitOps Platform Factory is a **plug-and-play solution** that automatically deploys your applications to Kubernetes clusters using GitOps principles. Deploy ArgoCD and your Helm charts with a single command - perfect for rapid application deployment and management.
 
-**Note**: This repository focuses on the application layer and GitOps workflows. For infrastructure provisioning and cluster setup, see the companion [Ephemeral-Environment-Factory](https://github.com/vladcalo/Ephemeral-Environment-Factory) repository.
+**Purpose**: Application deployment and GitOps workflows for Kubernetes clusters. This repository works with clusters provisioned by [Ephemeral-Environment-Factory](https://github.com/vladcalo/Ephemeral-Environment-Factory).
+
+## Quick Summary
+
+**What it does**: Automatically deploys ArgoCD and your Helm chart applications  
+**How to use**: `./build.sh multipass` or `./build.sh aks`  
+**Time to deploy**: ~2-3 minutes for ArgoCD + application deployment  
+**What you get**: Fully configured GitOps platform with your apps running
 
 ## Architecture
 
@@ -56,6 +63,12 @@ GitOps-Platform-Factory/
 ```
 
 ## Key Features
+
+### Plug-and-Play Application Deployment
+
+- **Single Command**: `./build.sh multipass` or `./build.sh aks`
+- **Automatic Discovery**: Scans Helm directory and generates ArgoCD manifests
+- **Zero Configuration**: Deploys ArgoCD and your applications automatically
 
 ### GitOps Workflow
 
