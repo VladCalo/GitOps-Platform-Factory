@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/VladCalo/GitOps-Platform-Factory.git
-    path: ../helm/whoami-chart
+    path: helm/whoami-chart
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc

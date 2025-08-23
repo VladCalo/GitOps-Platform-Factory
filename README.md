@@ -89,53 +89,38 @@ cd go && go mod tidy
 
 **⚠️ Important Workflow Order**: You must first generate the Go templates and then deploy ArgoCD. The current samples in the `helm/` directory are examples that you need to update for your specific applications.
 
-### 1. Update Helm Charts (Required First Step)
+### Automated Deployment
 
-The `helm/` directory contains sample charts that you need to customize for your applications:
+Use the build script to automate the entire GitOps setup:
 
 ```bash
-# Update the sample charts or add your own charts
-cd helm/
-# Edit nginx-chart/values.yaml, whoami-chart/values.yaml, or create new charts
-# Update Chart.yaml files with your application details
-# Modify templates/ to match your application requirements
+# Deploy to multipass cluster
+./build.sh multipass
+
+# Deploy to AKS cluster
+./build.sh aks
 ```
 
-**Current Sample Charts**:
+### What the Build Script Does
+
+1. **Checks kubeconfig** - Verifies cluster access (admin.conf for multipass, azure.conf for AKS)
+2. **Generates templates** - Automatically discovers all Helm charts and generates ArgoCD manifests
+3. **Deploys ArgoCD** - Installs and configures ArgoCD on your cluster
+4. **Port-forward setup** - Backgrounds port-forward and outputs UI access details
+
+### Manual Steps (if needed)
+
+**Update Helm Charts:**
+
+```bash
+cd helm/
+# Edit chart values and templates for your applications
+```
+
+**Current Sample Charts:**
 
 - `nginx-chart/` - Basic nginx web server (update for your web app)
 - `whoami-chart/` - HTTP info server (update for your API/service)
-
-### 2. Generate Application Manifests
-
-After updating your Helm charts, generate the ArgoCD Application manifests:
-
-```bash
-cd go
-go build -o generator main.go
-./generator nginx-app nginx-chart default
-./generator whoami-app whoami-chart default
-# Add more applications as needed
-```
-
-### 3. Deploy ArgoCD to Your Cluster
-
-First, ensure you have a Kubernetes cluster running (provisioned by Ephemeral-Environment-Factory):
-
-```bash
-# Deploy ArgoCD
-cd ../ansible/playbooks/
-ansible-playbook argo.yaml -e kubeconfig_path=/Users/vladcalomfirescu/.kube/[admin/azure].conf
-
-# Access ArgoCD UI
-# Wait for Status=Pending
-KUBECONFIG=~/.kube/[admin/azure].conf kubectl port-forward svc/argocd-server -n argocd 8080:443
-
-# Get admin password
-KUBECONFIG=~/.kube/[admin/azure].conf kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d && echo
-
-#Go to localhost:8080
-```
 
 ## Go Template Generator
 
@@ -195,6 +180,34 @@ This repository works with clusters provisioned by the Ephemeral-Environment-Fac
 1. **Provision Cluster**: Use Ephemeral-Environment-Factory to create Kubernetes cluster
 2. **Deploy ArgoCD**: Install ArgoCD on the provisioned cluster
 3. **Deploy Applications**: Use this repository to deploy applications via GitOps
+
+## Kubectl Configuration
+
+The build script automatically detects and uses the correct kubeconfig based on your cluster type:
+
+### Local Cluster (Multipass)
+
+- **Kubeconfig location**: `~/.kube/admin.conf`
+- **Build script usage**: `./build.sh multipass`
+- **Automatic detection**: Script uses `admin.conf` for multipass clusters
+
+### Azure Cluster (AKS)
+
+- **Kubeconfig location**: `~/.kube/azure.conf`
+- **Build script usage**: `./build.sh aks`
+- **Automatic detection**: Script uses `azure.conf` for AKS clusters
+
+### Manual Usage
+
+```bash
+# For multipass cluster
+export KUBECONFIG=~/.kube/admin.conf
+kubectl get nodes
+
+# For AKS cluster
+export KUBECONFIG=~/.kube/azure.conf
+kubectl get nodes
+```
 
 ## Customization
 
