@@ -47,14 +47,7 @@ if [ "$ACTION" = "destroy" ]; then
     exit 0
 fi
 
-if [ "$ACTION" = "deploy" ]; then
-    check_kubeconfig
-    generate_templates
-    deploy_argocd
-    echo "GitOps Platform deployed successfully on $TYPE cluster!"
-    exit 0
-fi
-
+# Function definitions
 check_kubeconfig() {
     case $TYPE in
         multipass)
@@ -121,4 +114,15 @@ deploy_argocd() {
     echo "Port-forward PID: $PORT_FORWARD_PID (use 'kill $PORT_FORWARD_PID' to stop)"
 }
 
+# Deploy action handling
+if [ "$ACTION" = "deploy" ]; then
+    check_kubeconfig
+    generate_templates
+    deploy_argocd
+    echo "GitOps Platform deployed successfully on $TYPE cluster!"
+    exit 0
+fi
+
+echo "Invalid action: $ACTION. Use deploy or destroy"
+exit 1
 
