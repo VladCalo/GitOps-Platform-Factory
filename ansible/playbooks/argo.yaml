@@ -1,0 +1,104 @@
+---
+- hosts: localhost
+  gather_facts: false
+
+  # Pre-flight checks
+  pre_tasks:
+    - name: Check if kubeconfig path is provided
+      assert:
+        that:
+          - kubeconfig_path is defined
+          - kubeconfig_path != ""
+        fail_msg: "kubeconfig_path variable must be provided"
+        success_msg: "kubeconfig_path validated"
+
+    - name: Check if kubeconfig file exists
+      stat:
+        path: "{{ kubeconfig_path }}"
+      register: kubeconfig_file
+
+    - name: Validate kubeconfig file exists
+      assert:
+        that:
+          - kubeconfig_file.stat.exists
+        fail_msg: "kubeconfig file does not exist: {{ kubeconfig_path }}"
+        success_msg: "kubeconfig file found"
+
+    - name: Check if kubectl is available
+      command: kubectl version --client
+      register: kubectl_check
+      changed_when: false
+      failed_when: false
+
+    - name: Validate kubectl availability
+      assert:
+        that:
+          - kubectl_check.rc == 0
+        fail_msg: "kubectl is not available or not working properly"
+        success_msg: "kubectl is available"
+
+  tasks:
+    - name: Create ArgoCD namespace
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: argocd
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: namespace_result
+
+    - name: Check namespace creation
+      assert:
+        that:
+          - namespace_result is defined
+          - namespace_result.changed or namespace_result.state == "present"
+        fail_msg: "Failed to create ArgoCD namespace"
+        success_msg: "ArgoCD namespace created/verified"
+
+    - name: Install ArgoCD via official manifest
+      command: >
+        kubectl apply --validate=false -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: argocd_install
+      changed_when: argocd_install.rc == 0
+      failed_when: argocd_install.rc != 0
+
+    - name: Check ArgoCD installation
+      assert:
+        that:
+          - argocd_install.rc == 0
+        fail_msg: "Failed to install ArgoCD"
+        success_msg: "ArgoCD installed successfully"
+
+    - name: Check for ArgoCD application files
+      find:
+        paths: "{{ playbook_dir }}/../../argocd"
+        patterns: "*-app.yaml"
+      register: argocd_apps
+
+    - name: Validate ArgoCD application files exist
+      assert:
+        that:
+          - argocd_apps.files | length > 0
+        fail_msg: "No ArgoCD application files found in argocd directory"
+        success_msg: "Found {{ argocd_apps.files | length }} ArgoCD application files"
+
+    - name: Apply all ArgoCD apps
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', item) }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/../../argocd/*-app.yaml"
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: app_results
+
+    - name: Check ArgoCD applications deployment
+      assert:
+        that:
+          - app_results is defined
+          - app_results | length > 0
+        fail_msg: "Failed to deploy ArgoCD applications"
+        success_msg: "ArgoCD applications deployed successfully"

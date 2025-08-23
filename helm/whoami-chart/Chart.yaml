@@ -1,0 +1,5 @@
+apiVersion: v2
+name: whoami-chart
+description: A minimal HTTP server that returns information about the request
+version: 0.1.0
+appVersion: "latest"
