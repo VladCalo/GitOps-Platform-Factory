@@ -252,7 +252,6 @@ kubectl get nodes
 - ✅ **Basic Template Generation**: Go-based manifest generation
 - ✅ **Sample Helm Charts**: nginx and whoami examples
 - ❌ **Advanced Templating**: Support for complex application configurations
-- ❌ **Multi-Cluster Support**: Deployment across multiple clusters
 - ❌ **Environment Management**: Staging, production, etc.
 - ❌ **Security**: Enhanced security configurations and RBAC
 - ❌ **Monitoring**: Integration with monitoring and logging solutions
