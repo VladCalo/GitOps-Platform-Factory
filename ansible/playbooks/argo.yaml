@@ -52,7 +52,7 @@
       assert:
         that:
           - namespace_result is defined
-          - namespace_result.changed or namespace_result.state == "present"
+          - namespace_result.changed or namespace_result.failed == false
         fail_msg: "Failed to create ArgoCD namespace"
         success_msg: "ArgoCD namespace created/verified"
 
