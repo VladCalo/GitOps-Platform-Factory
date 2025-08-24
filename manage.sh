@@ -40,7 +40,6 @@ if [ "$ACTION" = "destroy" ]; then
     exit 0
 fi
 
-# Function definitions
 check_kubeconfig() {
     case $TYPE in
         multipass)
@@ -107,7 +106,6 @@ deploy_argocd() {
     echo "Port-forward PID: $PORT_FORWARD_PID (use 'kill $PORT_FORWARD_PID' to stop)"
 }
 
-# Deploy action handling
 if [ "$ACTION" = "deploy" ]; then
     check_kubeconfig
     generate_templates
