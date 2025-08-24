@@ -66,17 +66,14 @@ func main() {
 		log.Fatalf("Error getting working directory: %v", err)
 	}
 
-	// Check if we're in the go/ subdirectory and adjust chart path accordingly
 	chartPath := filepath.Join("helm", chartName)
 	if _, err := os.Stat(chartPath); os.IsNotExist(err) {
-		// Try relative to parent directory (project root)
 		chartPath = filepath.Join("..", "helm", chartName)
 		if _, err := os.Stat(chartPath); os.IsNotExist(err) {
 			log.Fatalf("Error: chart directory does not exist: %s or %s", filepath.Join("helm", chartName), chartPath)
 		}
 	}
 
-	// Determine project root and adjust paths accordingly
 	projectRoot := wd
 	if strings.HasSuffix(wd, "/go") {
 		projectRoot = filepath.Dir(wd)

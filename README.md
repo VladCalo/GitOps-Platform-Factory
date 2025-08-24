@@ -1,15 +1,5 @@
 # GitOps Platform Factory
 
-**⚠️ Project Status: Work in Progress**  
-This project is currently under active development and is not yet complete. Some features may be incomplete or require additional configuration.
-
-**🚀 Quick Start Workflow**:
-
-1. **Update your Helm charts** in `helm/` directory
-2. **Generate ArgoCD manifests** using the Go template generator
-3. **Deploy ArgoCD** to your Kubernetes cluster
-4. **ArgoCD syncs** your applications from Git
-
 ## Overview
 
 The GitOps Platform Factory is a **plug-and-play solution** that automatically deploys your applications to Kubernetes clusters using GitOps principles. Deploy ArgoCD and your Helm charts with a single command - perfect for rapid application deployment and management.
@@ -19,8 +9,8 @@ The GitOps Platform Factory is a **plug-and-play solution** that automatically d
 ## Quick Summary
 
 **What it does**: Automatically deploys ArgoCD and your Helm chart applications  
-**How to use**: `./build.sh deploy multipass` or `./build.sh deploy aks`  
-**How to destroy**: `./build.sh destroy multipass` or `./build.sh destroy aks`  
+**How to use**: `./manage.sh deploy multipass` or `./manage.sh deploy aks`  
+**How to destroy**: `./manage.sh destroy multipass` or `./manage.sh destroy aks`  
 **Time to deploy**: ~2-3 minutes for ArgoCD + application deployment  
 **What you get**: Fully configured GitOps platform with your apps running
 
@@ -39,35 +29,11 @@ The project consists of three main layers:
 - **Ansible Playbooks**: ArgoCD deployment and configuration
 - **Application Manifests**: Generated ArgoCD Application resources
 
-## Project Structure
-
-```
-GitOps-Platform-Factory/
-├── ansible/                    # Ansible configuration for ArgoCD
-├── argocd/                    # Generated ArgoCD application manifests
-│   ├── nginx-app.yaml        # Sample nginx application
-│   └── whoami-app.yaml       # Sample whoami application
-├── go/                        # Go template generator
-│   ├── templates/             # Application manifest templates
-│   ├── main.go               # Template generation logic
-│   └── go.mod                # Go module dependencies
-├── helm/                      # Helm charts for applications
-│   ├── nginx-chart/          # Sample nginx application
-│   │   ├── Chart.yaml        # Chart metadata
-│   │   ├── templates/        # Kubernetes manifests
-│   │   └── values.yaml       # Default values
-│   └── whoami-chart/         # Sample whoami application
-│       ├── Chart.yaml        # Chart metadata
-│       ├── templates/        # Kubernetes manifests
-│       └── values.yaml       # Default values
-└── README.md                 # This file
-```
-
 ## Key Features
 
 ### Plug-and-Play Application Deployment
 
-- **Single Command**: `./build.sh multipass` or `./build.sh aks`
+- **Single Command**: `./manage.sh deploy multipass` or `./manage.sh deploy aks`
 - **Automatic Discovery**: Scans Helm directory and generates ArgoCD manifests
 - **Zero Configuration**: Deploys ArgoCD and your applications automatically
 
@@ -105,51 +71,45 @@ cd go && go mod tidy
 
 ### Automated Deployment
 
-Use the build script to automate the entire GitOps setup:
+Use the manage script to automate the entire GitOps setup:
 
 ```bash
 # Deploy to multipass cluster
-./build.sh deploy multipass
+./manage.sh deploy multipass
 
 # Deploy to AKS cluster
-./build.sh deploy aks
+./manage.sh deploy aks
 
 # Destroy from multipass cluster
-./build.sh destroy multipass
+./manage.sh destroy multipass
 
 # Destroy from AKS cluster
-./build.sh destroy aks
+./manage.sh destroy aks
 ```
 
-### What the Build Script Does
+## Project Structure
 
-**Deploy Action:**
-
-1. **Checks kubeconfig** - Verifies cluster access (admin.conf for multipass, azure.conf for AKS)
-2. **Generates templates** - Automatically discovers all Helm charts and generates ArgoCD manifests
-3. **Deploys ArgoCD** - Installs and configures ArgoCD on your cluster
-4. **Port-forward setup** - Backgrounds port-forward and outputs UI access details
-
-**Destroy Action:**
-
-1. **Stops port-forward** - Kills any running port-forward processes
-2. **Removes applications** - Deletes all ArgoCD applications
-3. **Removes ArgoCD** - Completely uninstalls ArgoCD namespace
-4. **Preserves manifests** - Keeps generated YAML files for easy redeployment
-
-### Manual Steps (if needed)
-
-**Update Helm Charts:**
-
-```bash
-cd helm/
-# Edit chart values and templates for your applications
 ```
-
-**Current Sample Charts:**
-
-- `nginx-chart/` - Basic nginx web server (update for your web app)
-- `whoami-chart/` - HTTP info server (update for your API/service)
+GitOps-Platform-Factory/
+├── ansible/                    # Ansible configuration for ArgoCD
+├── argocd/                    # Generated ArgoCD application manifests
+│   ├── nginx-app.yaml        # Sample nginx application
+│   └── whoami-app.yaml       # Sample whoami application
+├── go/                        # Go template generator
+│   ├── templates/             # Application manifest templates
+│   ├── main.go               # Template generation logic
+│   └── go.mod                # Go module dependencies
+├── helm/                      # Helm charts for applications
+│   ├── nginx-chart/          # Sample nginx application
+│   │   ├── Chart.yaml        # Chart metadata
+│   │   ├── templates/        # Kubernetes manifests
+│   │   └── values.yaml       # Default values
+│   └── whoami-chart/         # Sample whoami application
+│       ├── Chart.yaml        # Chart metadata
+│       ├── templates/        # Kubernetes manifests
+│       └── values.yaml       # Default values
+└── README.md
+```
 
 ## Go Template Generator
 
@@ -158,12 +118,10 @@ The Go template generator creates ArgoCD Application manifests from Helm charts:
 ### Usage
 
 ```bash
-# Build the generator
 cd go
 go build -o generator main.go
 
-# Run from project root (not from go/ directory)
-./go/generator <app-name> <chart-name> <namespace>
+./generator <app-name> <chart-name> <namespace>
 ```
 
 This generates an ArgoCD Application manifest that:
@@ -174,24 +132,7 @@ This generates an ArgoCD Application manifest that:
 
 ## Helm Charts
 
-The repository includes sample Helm charts:
-
-### nginx-chart
-
-Basic nginx web server with configurable:
-
-- Replica count
-- Image version
-- Service type
-- Resource limits
-
-### whoami-chart
-
-HTTP server returning request information, useful for:
-
-- Load balancer testing
-- Network debugging
-- Health check endpoints
+The repository includes sample Helm charts: **nginx** and **whoami** and you can also use your own
 
 ## ArgoCD Applications
 
@@ -207,47 +148,9 @@ Applications are automatically generated from Helm charts using the Go template 
 This repository works with clusters provisioned by the Ephemeral-Environment-Factory:
 
 1. **Provision Cluster**: Use Ephemeral-Environment-Factory to create Kubernetes cluster
-2. **Deploy GitOps**: Run `./build.sh deploy multipass` or `./build.sh deploy aks`
-3. **Manage Applications**: Deploy, update, and destroy applications via GitOps
-4. **Cleanup**: Use `./build.sh destroy multipass` or `./build.sh destroy aks` when done
-
-## Kubectl Configuration
-
-The build script automatically detects and uses the correct kubeconfig based on your cluster type:
-
-### Local Cluster (Multipass)
-
-- **Kubeconfig location**: `~/.kube/admin.conf`
-- **Build script usage**: `./build.sh multipass`
-- **Automatic detection**: Script uses `admin.conf` for multipass clusters
-
-### Azure Cluster (AKS)
-
-- **Kubeconfig location**: `~/.kube/azure.conf`
-- **Build script usage**: `./build.sh aks`
-- **Automatic detection**: Script uses `azure.conf` for AKS clusters
-
-### Manual Usage
-
-```bash
-# For multipass cluster
-export KUBECONFIG=~/.kube/admin.conf
-kubectl get nodes
-
-# For AKS cluster
-export KUBECONFIG=~/.kube/azure.conf
-kubectl get nodes
-```
-
-## Customization
-
-### Working with Current Samples
-
-**Before proceeding, you must update the sample charts**:
-
-- The `nginx-chart/` and `whoami-chart/` are examples that need customization
-- Update `values.yaml`, `Chart.yaml`, and templates to match your application requirements
-- These samples demonstrate the structure but are not production-ready
+2. **Deploy GitOps**
+3. **Manage Applications**
+4. **Cleanup**
 
 ### Adding New Applications
 
@@ -255,12 +158,6 @@ kubectl get nodes
 2. **Option B**: Create a new Helm chart in `helm/`
 3. Use the Go generator to create ArgoCD Application manifest
 4. Commit and push both the Helm chart and generated manifest
-
-### Modifying Existing Applications
-
-1. Update the Helm chart in `helm/`
-2. Regenerate the ArgoCD Application manifest using the Go generator
-3. Commit and push both the updated chart and regenerated manifest
 
 ## Current Limitations
 
