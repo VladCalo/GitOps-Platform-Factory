@@ -165,6 +165,7 @@ This repository works with clusters provisioned by the Ephemeral-Environment-Fac
 
 - ✅ **Basic Template Generation**: Go-based manifest generation
 - ✅ **Sample Helm Charts**: nginx and whoami examples
+- ❌ **Clean code**: 50% needs improvement
 - ❌ **Advanced Templating**: Support for complex application configurations
 - ❌ **Environment Management**: Staging, production, etc.
 - ❌ **Security**: Enhanced security configurations and RBAC
