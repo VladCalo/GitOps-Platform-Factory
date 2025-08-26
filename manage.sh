@@ -106,8 +106,32 @@ deploy_argocd() {
     echo "Port-forward PID: $PORT_FORWARD_PID (use 'kill $PORT_FORWARD_PID' to stop)"
 }
 
+check_venv() {
+    if [ ! -d ".venv" ]; then
+        echo "Virtual environment not found. Creating .venv..."
+        python3 -m venv .venv
+        echo "Virtual environment created successfully!"
+    else
+        echo "Virtual environment found: .venv"
+    fi
+    
+    echo "Activating virtual environment..."
+    source .venv/bin/activate
+    
+    if ! python3 -c "import kubernetes" 2>/dev/null; then
+        echo "Installing requirements..."
+        pip install -r requirements.txt
+        echo "Requirements installed successfully!"
+    else
+        echo "Requirements already present"
+    fi
+    
+    echo "Virtual environment setup complete!"
+}
+
 if [ "$ACTION" = "deploy" ]; then
     check_kubeconfig
+    check_venv
     generate_templates
     deploy_argocd
     echo "GitOps Platform deployed successfully on $TYPE cluster!"
