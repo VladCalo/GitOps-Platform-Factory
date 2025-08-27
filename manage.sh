@@ -40,12 +40,15 @@ case $ACTION in
         kubectl port-forward svc/argocd-server -n argocd 8080:443 &
         echo "ArgoCD: https://localhost:8080"
         echo "Password: $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d)"
+        deactivate
+        exit 0
         ;;
     destroy)
         pkill -f "kubectl port-forward.*argocd-server" || true
         kubectl delete applications --all -n argocd --ignore-not-found=true
         kubectl delete namespace argocd --ignore-not-found=true
         echo "GitOps platform destroyed"
+        exit 0
         ;;
     *) echo "Use deploy or destroy"; exit 1 ;;
 esac
