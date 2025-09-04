@@ -145,7 +145,6 @@ This repository works with clusters provisioned by the Ephemeral-Environment-Fac
 - ❌ **Advanced Templating**: Support for complex application configurations
 - ❌ **Environment Management**: Staging, production, etc.
 - ❌ **Security**: Enhanced security configurations and RBAC
-- ❌ **Monitoring**: Integration with monitoring and logging solutions
 
 ## Related Repositories
 
