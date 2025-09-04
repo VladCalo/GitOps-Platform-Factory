@@ -87,30 +87,6 @@ Use the manage script to automate the entire GitOps setup:
 ./manage.sh destroy aks
 ```
 
-## Project Structure
-
-```
-GitOps-Platform-Factory/
-├── ansible/                    # Ansible configuration for ArgoCD
-├── argocd/                    # Generated ArgoCD application manifests
-│   ├── nginx-app.yaml        # Sample nginx application
-│   └── whoami-app.yaml       # Sample whoami application
-├── go/                        # Go template generator
-│   ├── templates/             # Application manifest templates
-│   ├── main.go               # Template generation logic
-│   └── go.mod                # Go module dependencies
-├── helm/                      # Helm charts for applications
-│   ├── nginx-chart/          # Sample nginx application
-│   │   ├── Chart.yaml        # Chart metadata
-│   │   ├── templates/        # Kubernetes manifests
-│   │   └── values.yaml       # Default values
-│   └── whoami-chart/         # Sample whoami application
-│       ├── Chart.yaml        # Chart metadata
-│       ├── templates/        # Kubernetes manifests
-│       └── values.yaml       # Default values
-└── README.md
-```
-
 ## Go Template Generator
 
 The Go template generator creates ArgoCD Application manifests from Helm charts:
